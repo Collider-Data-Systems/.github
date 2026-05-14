@@ -1,76 +1,101 @@
 # Collider-Data-Systems
 
-> A semantic functorial network over distributed compute.
+Collider-Data-Systems builds **mo:os**: a small rewriting runtime for a large idea.
 
-Collider-Data-Systems builds **mo:os**: a categorical hypergraph runtime for people, agents, kernels, programs, and external surfaces that need to stay in one typed graph without pretending every outside system is the source of truth.
+The premise is simple enough to audit and strange enough to matter: people, agents, programs, machines, calendars, project boards, websites, files, and future applications can share one typed hypergraph without pretending that any external service is the source of truth.
 
-The core idea is intentionally small. The log is truth. State is derived. Everything that changes the graph is one of four rewrites: `ADD`, `LINK`, `MUTATE`, or `UNLINK`. Above that log, an ontology/operad declares node types, port pairs, authority, sessions, purpose, causality, and time. External systems such as Calendar, GitHub Projects, websites, DNS, Workspace, and local OS services are projection or ingest surfaces with explicit adapters.
+In mo:os, the log is truth. State is derived. Every graph change is one of four rewrites:
 
-## What we publish
+```text
+ADD    create a node with typed properties
+LINK   create a typed relation between nodes
+MUTATE change one property on one existing node
+UNLINK remove one relation
+```
 
-| Repository | What it is |
+Everything else is discipline around that tiny core: an ontology, an operad of legal port pairs, session liveness, authority gates, projection contracts, readback, reconciliation, and explicit actuator boundaries.
+
+## What We Publish
+
+| Repository | Role |
 |---|---|
-| **[moos-kernel](https://github.com/Collider-Data-Systems/moos-kernel)** | The OS-facing rewriting runtime: Go, stdlib-first, append-only log, fold-derived state, ontology validation, session liveness, admin capability, HTTP/MCP transport, HDC derivation, and explicit actuator boundaries. Current private workspace ontology: v3.16.1, 53 node types, WFs WF01-WF21. |
-| **[moos-router](https://github.com/Collider-Data-Systems/moos-router)** | The WF16 federation gateway: stateless HTTP routing by URN prefix and type map, peer cascade, and fan-out reads across sovereign kernels. |
+| **[moos-kernel](https://github.com/Collider-Data-Systems/moos-kernel)** | The Go runtime. It folds append-only rewrite logs into graph state, validates the loaded ontology, enforces session liveness and admin authority, exposes HTTP/MCP transports, derives HDC indexes, and keeps external actions at explicit boundary leaves. |
+| **[moos-router](https://github.com/Collider-Data-Systems/moos-router)** | The WF16 federation gateway. It routes graph traffic by URN prefix and type map, fans out broad reads, cascades node lookups through peers, and reports downstream kernel health without owning graph truth. |
+| **Project mo:os** | The public project-board surface for the convergence arc. Board rows are useful operator projections, but HG state remains authoritative; a row becomes a rewrite candidate only when it has stable graph identity. |
 
-Together they form a federation. Each kernel owns a sovereign log. The router helps clients find the right kernel or fan out across peers. Twin-kernel synchronization and host-level OS integration are runtime substrate work, not application logic.
+The private control workspace holds the ontology, projection planners, operator reports, and local dashboards. The runtime repositories stay narrow on purpose: kernel correctness in one place, federation routing in another, application/domain work above both.
 
-## The shape, briefly
+## The Architecture In One Pass
 
-The kernel state is a hypergraph that grows by four rewrites:
+Each kernel owns a sovereign log. Replay folds that log into a typed hypergraph. The loaded ontology currently models sessions, agents, programs, purposes, groups, claims, derivations, calendar events, channels, kernels, transports, gates, causal links, and more through 21 rewrite families.
 
+Sessions are the working unit. A session is not just a chat window or a process. It is a purpose-colored context with scope, purpose, host, owner, and occupant represented by graph relations. Before an envelope reaches the fold, the runtime asks two questions:
+
+- **M11 liveness:** does the actor have a live session context?
+- **M12 authority:** is this rewrite admin-scoped, and if so, can the actor govern that scope?
+
+That makes agent work inspectable. A VS Code conversation, a Claude Desktop window, an Antigravity surface, and a background process are harnesses. The graph occupant is the relation the kernel sees. The actor on an envelope must reconcile with that occupant before graph truth changes.
+
+## Projection, Ingest, And Readback
+
+mo:os treats external systems as surfaces, not truth stores.
+
+```text
+folded HG state
+  -> planner artifact
+  -> explicit writer or local view
+  -> external object with stable graph identity
+  -> readback observation
+  -> reconciliation report
+  -> gate or dashboard
 ```
-ADD    — create a node with typed properties
-LINK   — create a relation (hyperedge) between two nodes via a typed port pair
-MUTATE — change one property value on one existing node
-UNLINK — remove a relation
-```
 
-`state(t) = fold(log[0..t])`. Log is truth; state is derived.
+That loop is the current proof style. The same pattern applies to Calendar events, GitHub Project rows, VS Code session context, Workspace artifacts, dashboards, DNS, websites, and future application surfaces.
 
-Above that, an operad declares the legal types and ports. Above the operad, sessions inhabit kernels as purpose-colored contexts: scope, purpose, host, owner, and occupant. Envelopes pass two gates before fold:
+Recent work proved the loop on a live Calendar and visualization lane: folded graph state projects into Calendar plans, graph lenses, DOT/SVG views, Cytoscape.js inspectors, recommendation plans, reconciliation reports, and a local dashboard. Calendar observations ingest back as `calendar_event` nodes with session pins; deferred source-anchor rows stay deferred until the operad says they are safe. That is intentional: the system would rather show an honest warning than blur the boundary.
 
-- **§M11 liveness** — every envelope must have a live session context (explicit or inferable via `has-occupant`)
-- **§M12 admin-capability** — admin-scope rewrites walk `WF02 governs` from actor through superadmin
+## Current Frontier
 
-The result is a categorical substrate where:
+The active May 2026 arc is about making the graph useful across real workstations and real agents while keeping the runtime boring.
 
-- **Sessions** are purpose-colored occasions of work, with durable scope carried by relations.
-- **Programs** decompose intent into graph structure rather than process-local memory.
-- **Channels** are explicit F/G boundaries for Gmail, Drive, Calendar, GitHub, websites, DNS, and other external systems.
-- **Calendar events** and Project rows are projections with stable graph identity, not competing truth stores.
-- **Causation** is topology (`WF21 causes/caused-by`), distinct from temporal succession.
-- **Application groups** such as `my-tiny-data-collider` run on the hypergraph through kernels; they are not the kernel itself.
+- The hp-laptop primary kernel is live on ontology v3.16.1 with the governance session occupied by a VS Code/Copilot agent surface.
+- The T194/T200 topology sprint split upcoming work into scoped idle lanes for Calendar readback, GitHub Project bridging, S0 conversation staging, application surface mapping, and Z440 rejoin.
+- The projection dashboard currently reports a warning state with all safe Calendar/recommendation rows converged; the remaining warning is visual root coverage, not hidden failed work.
+- HP ProDesk has a proven setup session. Z440 remains the larger federation and specialist-seat host, with rejoin work staged before GPU/HDC or long-running delegation resumes.
 
-## Current projection work
+Those details change, but the invariant does not: a surface may help humans and agents work, but the append-only log plus folded HG state is where truth lives.
 
-The active T189/T200 lane is about identity-stable projection surfaces:
+## Applications Live Above The Runtime
 
-- Folded HG state projects to local dashboards, DOT/SVG graph lenses, Cytoscape.js inspector tabs, Google Calendar events, GitHub Project rows, and future website/DNS surfaces.
-- External observations ingest back as typed graph evidence: `knowledge_item`, `claim`, `derivation`, `calendar_event`, status `MUTATE`, or a more specific node type.
-- Every external artifact should carry a graph-derived identity such as an HG URN, projection contract, or stable `moos_projection_id`.
+`my-tiny-data-collider` is the first named application group in the graph. It may own websites, DNS, servers, Calendar and GitHub surfaces, Workspace channels, data products, and public or private content. It does not become `moos-kernel`, and it does not belong inside `moos-router`.
 
-The local pipeline currently proves the pattern on Calendar and graph lenses: 16 Google Calendar projection events have stable IDs, corresponding `calendar_event` nodes exist in HG, and the remaining source-anchor relations are held back until the WF07 operad declaration is cleaned up. That is the intended shape: planner first, writer second, readback third, graph truth always visible.
+This boundary is important. Kernel code should stay focused on log, fold, operad, sessions, authority, transport, and actuator correctness. Router code should stay focused on federation routing. Applications grow as graph groups, purposes, programs, channels, and external surfaces that use the runtime.
 
-## Applications on top
+## Why This Is Interesting
 
-`my-tiny-data-collider` is the first named application group in this model. It may own websites, DNS, servers, Calendar/GitHub/Workspace surfaces, data products, and public/private content, but it remains an HG group/purpose/program/channel family above the runtime substrate. The runtime repositories stay small and principled; application domains grow through the graph.
+Most automation systems hide their state in process memory, SaaS fields, local files, or prompt lore. mo:os pushes the opposite direction:
+
+- external tools are named surfaces;
+- agent sessions are graph relations;
+- projected artifacts carry stable identity;
+- causation is topology, not a timestamp guess;
+- dashboards are generated read models;
+- writers are explicit actuator boundaries;
+- pending, applied, and deferred rows are visible at the same time.
+
+The result is not a monolith. It is a graph substrate where agents can coordinate across machines, humans can inspect the exact boundary between plan and action, and applications can be built without smuggling their concerns into the runtime.
+
+## Entry Points
+
+- Start with **[moos-kernel](https://github.com/Collider-Data-Systems/moos-kernel)** if you care about the rewrite runtime, ontology validation, session liveness, authority gates, HTTP/MCP transport, or HDC-derived indexes.
+- Start with **[moos-router](https://github.com/Collider-Data-Systems/moos-router)** if you care about federation, sharding, peer cascade, fan-out reads, and keeping routing stateless.
+- Watch **[Project mo:os](https://github.com/orgs/Collider-Data-Systems/projects/4)** if you care about the current convergence arc and graph-aware project identity.
 
 ## Teams
 
-- **[@Collider-Data-Systems/sam](https://github.com/orgs/Collider-Data-Systems/teams/sam)** — owns kernels, delegates, and most sessions
-- **[@Collider-Data-Systems/moos](https://github.com/orgs/Collider-Data-Systems/teams/moos)** — multimodal curation lane
-
-## Project board
-
-Active work surfaces on **[Project mo:os](https://github.com/orgs/Collider-Data-Systems/projects/4)**: round-by-round iterations with HG-aware fields such as Agent ID, HG URN, Phase, Owner Role, Collider Category, and Branch Role. The board is a projection/control surface. HG remains authoritative; board edits become rewrite candidates only after the row resolves to an HG URN.
-
-## Background
-
-mo:os is being built toward a May 2026 convergence arc: reliable kernel/federation runtime, identity-stable projection surfaces, Calendar/GitHub readback, and application groups that can use the graph without leaking application concerns into runtime code. The substrate doctrine, ontology, and round-by-round reasoning live in a private workspace; the public face is the two runtime repos, this organization profile, and selected project-board surfaces.
-
-If you're a category theorist, hypergraph-rewriting researcher, or distributed-systems engineer interested in the substrate, the kernel README is the entry point.
+- **[@Collider-Data-Systems/sam](https://github.com/orgs/Collider-Data-Systems/teams/sam)** owns kernels, delegates, and most sessions.
+- **[@Collider-Data-Systems/moos](https://github.com/orgs/Collider-Data-Systems/teams/moos)** carries the multimodal curation lane.
 
 ## Contact
 
-Reach out via repository issues or the maintainer's GitHub profile. Solo-builder cadence — responses arrive in rounds rather than in real time.
+Use repository issues for project-specific discussion. The work advances in rounds: readback first, explicit changes second, reconciliation before claims of completion.
